@@ -35,13 +35,11 @@ async function run(){
         app.post('/package' , async(req,res) =>{
             const newPackage = req.body;
             const result = await packageCollection.insertOne(newPackage);
-            console.log('hit the post',req.body);
-            console.log('hit the post',result);
             res.json(result);
         })
         // GET API
         app.get('/order', async(req,res)=>{
-            const cursor = orderCollection.find({});
+            const cursor = await orderCollection.find({});
             const order = await cursor.toArray();
             res.send(order);
         });
@@ -50,17 +48,28 @@ async function run(){
         app.post('/order', async(req,res) =>{
             const newOrder = req.body;
             const result = await orderCollection.insertOne(newOrder);
-            console.log("post order" , req.body);
-            console.log("post is" , result);
             res.json(result);
+        });
+        //update product
+        app.put("/confirm/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+ 
+            orderCollection.updateOne(filter, {
+                    $set: {
+                        status: "Confirm"
+                    },
+                })
+                .then((result) => {
+                    res.send(result);
+                });
+ 
         });
         // delete 
         app.delete('/order/:id', async(req,res)=>{
             const id = req.params.id;
             const query ={_id:ObjectId(id)};
             const result = await orderCollection.deleteOne(query);
-            console.log("dele" , id);
-            console.log("dele" , result);
             res.json(result);
         })
     }
